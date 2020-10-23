@@ -1,21 +1,29 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Anima.Core
+﻿namespace Anima.Core
 {
-    [Serializable()]
     public class Message
     {
-        public string sender;
-        public string receiver;
+        public string Sender;
+        public string Receiver;
 
-        public string note;
+        public string Note;
 
-        public ISerializable value;
+        public object Value;
+
+        public Message() {}
+
+        public Message(string sender, string receiver, string value)
+        {
+            this.Sender = sender;
+            this.Receiver = receiver;
+            Value = value;
+        }
+
+        public Message(string sender, string receiver, string note, string value)
+        {
+            this.Sender = sender;
+            this.Receiver = receiver;
+            this.Note = note;
+            Value = value;
+        }
     }
 }

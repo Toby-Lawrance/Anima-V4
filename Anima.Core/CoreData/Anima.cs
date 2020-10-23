@@ -2,65 +2,43 @@
 using System.Collections.Concurrent;
 using System.IO;
 using System.Runtime.Serialization;
+using Anima.Core.CoreData;
+using Newtonsoft.Json;
 
 namespace Anima.Core
 {
-    [Serializable]
     public partial class Anima
     {
-        //Singleton instance
-        [NonSerialized] private static Anima instance;
+        public Anima(BinaryWriter ostream, BinaryReader istream, TextWriter estream)
+        {
+            outStream = ostream ?? new BinaryWriter(Console.OpenStandardOutput());
+            inStream = istream ?? new BinaryReader(Console.OpenStandardInput());
+            errorStream = estream ?? Console.Error;
+            pool = new KnowledgeBase();
+            mailBoxes = new MailSystem();
+        }
 
-        private Anima(BinaryWriter ostream, BinaryReader istream, TextWriter estream)
+        public Anima() : this(null, null, null) { }
+
+        public void SetStreams(BinaryWriter ostream, BinaryReader istream, TextWriter estream)
         {
             outStream = ostream ?? new BinaryWriter(Console.OpenStandardOutput());
             inStream = istream ?? new BinaryReader(Console.OpenStandardInput());
             errorStream = estream ?? Console.Error;
         }
 
-        public static Anima Instance
-        {
-            get
-            {
-                if (instance is null)
-                {
-                    throw new Exception("Instance not created");
-                }
-
-                return instance;
-            }
-        }
-
-        public static Anima CreateInstance(BinaryWriter ostream, BinaryReader istream, TextWriter estream, SerializationInfo info = null)
-        {
-            if (instance is not null)
-            {
-                throw new Exception("Instance already created");
-            }
-
-            if (info is null)
-            {
-                instance = new Anima(ostream, istream, estream);
-                return instance;
-            }
-
-            instance = new Anima(info,new StreamingContext());
-            instance.outStream = ostream;
-            instance.inStream = istream;
-            instance.errorStream = estream;
-            return instance;
-        }
-
-
+    [JsonIgnore]
         public BinaryWriter OutStream => outStream;
+        [JsonIgnore]
         public BinaryReader InStream => inStream;
+        [JsonIgnore]
         public TextWriter ErrorStream => errorStream;
 
-        [NonSerialized]
+        [JsonIgnore]
         private BinaryWriter outStream;
-        [NonSerialized]
+        [JsonIgnore]
         private BinaryReader inStream;
-        [NonSerialized]
+        [JsonIgnore]
         private TextWriter errorStream;
     }
 }
