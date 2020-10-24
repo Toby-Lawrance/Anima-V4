@@ -18,6 +18,13 @@ namespace SimpleDriver
             anima.MailBoxes.PostMessage(new Message("1", "4", "cheese3"));
             anima.MailBoxes.PostMessage(new Message("1", "2", "cheese4"));
 
+            bool succ1 = anima.KnowledePool.TryInsertValue<int>("Meaning of Life", 42);
+            bool succ2 = anima.KnowledePool.TryInsertValue<int>("Meaning of Life", 3);
+
+            var succ3 = anima.KnowledePool.TryGetValue<int>("Meaning of Life",out int meaning);
+
+            Console.WriteLine($"Succ1{succ1},Succ2{succ2},Succ3{succ3},Meaning of Life: {meaning}");
+
             string output = JsonConvert.SerializeObject(anima);
 
             Console.WriteLine(output);

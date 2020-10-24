@@ -15,6 +15,6 @@ namespace Anima.Core
         private KnowledgeBase pool;
 
         public MailSystem MailBoxes => mailBoxes;
-        public KnowledgeBase Pool => pool;
+        public KnowledgeBase KnowledePool => pool;
     }
 }
