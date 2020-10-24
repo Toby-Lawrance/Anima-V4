@@ -64,7 +64,7 @@ namespace Anima.Core.PluginManagement
 
         public IEnumerable<Module> LoadPlugins()
         {
-            return directories.SelectMany(path =>
+            return directories.Where(Directory.Exists).SelectMany(path =>
                 new DirectoryInfo(path).EnumerateFiles().Where(fi => fi.Extension == ".dll")
                     .Select(fi => Assembly.LoadFile(fi.FullName))
                     .SelectMany(ass => ass.GetTypes())
