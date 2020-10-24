@@ -9,13 +9,17 @@ namespace Anima.Core
 {
     public partial class Anima
     {
+        private static Anima _instance;
+        public static Anima Instance => _instance ??= new Anima();
+
+
         public Anima(BinaryWriter ostream, BinaryReader istream, TextWriter estream)
         {
-            outStream = ostream ?? new BinaryWriter(Console.OpenStandardOutput());
-            inStream = istream ?? new BinaryReader(Console.OpenStandardInput());
-            errorStream = estream ?? Console.Error;
+            SetStreams(ostream,istream,estream);
             pool = new KnowledgeBase();
             mailBoxes = new MailSystem();
+
+            _instance ??= this;
         }
 
         public Anima() : this(null, null, null) { }
@@ -27,7 +31,7 @@ namespace Anima.Core
             errorStream = estream ?? Console.Error;
         }
 
-    [JsonIgnore]
+        [JsonIgnore]
         public BinaryWriter OutStream => outStream;
         [JsonIgnore]
         public BinaryReader InStream => inStream;
