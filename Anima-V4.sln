@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30615.102
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Anima.Core", "Anima.Core\Anima.Core.csproj", "{CD1708B1-7411-45C5-9118-02459BB62337}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Anima.Core", "Anima.Core\Anima.Core.csproj", "{CD1708B1-7411-45C5-9118-02459BB62337}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleDriver", "SimpleDriver\SimpleDriver.csproj", "{45CBD5FC-8A4D-48D3-8492-D52AC2D31C33}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimpleDriver", "SimpleDriver\SimpleDriver.csproj", "{45CBD5FC-8A4D-48D3-8492-D52AC2D31C33}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestPlugin", "TestPlugin\TestPlugin.csproj", "{95D585C6-ED8E-42B9-A26B-0BE5FB2A8B80}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{45CBD5FC-8A4D-48D3-8492-D52AC2D31C33}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{45CBD5FC-8A4D-48D3-8492-D52AC2D31C33}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{45CBD5FC-8A4D-48D3-8492-D52AC2D31C33}.Release|Any CPU.Build.0 = Release|Any CPU
+		{95D585C6-ED8E-42B9-A26B-0BE5FB2A8B80}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{95D585C6-ED8E-42B9-A26B-0BE5FB2A8B80}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{95D585C6-ED8E-42B9-A26B-0BE5FB2A8B80}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{95D585C6-ED8E-42B9-A26B-0BE5FB2A8B80}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

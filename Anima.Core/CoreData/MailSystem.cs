@@ -5,6 +5,7 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using Anima.Core.Plugins;
 using static System.String;
 
 
@@ -45,8 +46,9 @@ namespace Anima.Core.CoreData
             return true;
         }
 
-        public int CheckNumMessages(string id)
+        public int CheckNumMessages(Module mod)
         {
+            string id = mod.Identifier;
             if (!_mailBoxes.ContainsKey(id))
             {
                 return 0;
@@ -55,14 +57,15 @@ namespace Anima.Core.CoreData
             return _mailBoxes[id].Count;
         }
 
-        public Message GetMessage(string id)
+        public Message GetMessage(Module mod)
         {
+            string id = mod.Identifier;
             if (!_mailBoxes.ContainsKey(id))
             {
                 return null;
             }
 
-            if (CheckNumMessages(id) > 0)
+            if (CheckNumMessages(mod) > 0)
             {
                 var result = _mailBoxes[id].TryDequeue(out Message firstMessage);
                 if (result)

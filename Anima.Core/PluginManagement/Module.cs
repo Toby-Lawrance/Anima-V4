@@ -25,5 +25,7 @@ namespace Anima.Core.Plugins
         public virtual void Init() {}
         public abstract void Tick();
         public virtual void Close() {}
+
+        public override string ToString() => $"{Identifier}:{Description}\n Fires every {TickDelay}";
     }
 }

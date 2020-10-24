@@ -15,6 +15,7 @@ namespace Anima.Core.PluginManagement
     {
         private string[] directories =
         {
+            new FileInfo(Assembly.GetExecutingAssembly().Location).Directory?.FullName,
             new FileInfo(Assembly.GetExecutingAssembly().Location).Directory?.FullName + @"\Plugins"
         };
 
@@ -26,7 +27,7 @@ namespace Anima.Core.PluginManagement
         {
             loadedPlugins = LoadPlugins();
             InitialisePlugins();
-            runningPlugins = InitialisePluginTicks();
+            runningPlugins = InitialisePluginTicks().ToList();
         }
 
         public void InitialisePlugins()
@@ -37,12 +38,19 @@ namespace Anima.Core.PluginManagement
             {
                 Anima.Instance.ErrorStream.WriteLine("Plugin Initialization failed");
             }
+            else
+            {
+                foreach (var plugin in loadedPlugins)
+                {
+                    Anima.Instance.OutStream.WriteLine($"Initialized:{plugin}");
+                }
+            }
         }
 
 
         public IEnumerable<Timer> InitialisePluginTicks()
         {
-            return loadedPlugins.Select(plugin => new Timer(o => plugin.Tick(),null,plugin.TickDelay/2,plugin.TickDelay));
+            return loadedPlugins.Select(plugin => new Timer(_ => plugin.Tick(),null,new TimeSpan(0,0,1), plugin.TickDelay));
         }
 
         public void ClosePlugins()

@@ -44,6 +44,7 @@ namespace Anima.Core
             {
                 input = InStream.ReadLine();
             } while (input != "quit");
+            plugMan.ClosePlugins();
         }
 
         [JsonIgnore]
