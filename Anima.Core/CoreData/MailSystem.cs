@@ -5,17 +5,18 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
-using Anima.Core.Plugins;
+using Core.Plugins;
 using static System.String;
 
 
-namespace Anima.Core.CoreData
+namespace Core.CoreData
 {
     public class MailSystem
     {
+        [JsonInclude]
         private readonly ConcurrentDictionary<string, ConcurrentQueue<Message>> _mailBoxes;
 
-        [JsonIgnore]
+        [JsonInclude]
         public ConcurrentDictionary<string, ConcurrentQueue<Message>> MailBoxes => _mailBoxes;
 
         public MailSystem()

@@ -6,7 +6,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Anima.Core.Plugins
+namespace Core.Plugins
 {
     public abstract class Module
     {
@@ -26,6 +26,6 @@ namespace Anima.Core.Plugins
         public abstract void Tick();
         public virtual void Close() {}
 
-        public override string ToString() => $"{Identifier}:{Description}\n Fires every {TickDelay}";
+        public override string ToString() => $"{Identifier}:\n\t{Description}\n\tFires every {TickDelay}";
     }
 }

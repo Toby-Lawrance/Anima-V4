@@ -5,11 +5,11 @@ using System.Globalization;
 using System.Linq;
 using System.Net.Http.Headers;
 using System.Runtime.Serialization;
-using Anima.Core.CoreData;
-using Anima.Core.PluginManagement;
+using Core.CoreData;
+using Core.PluginManagement;
 using Newtonsoft.Json;
 
-namespace Anima.Core
+namespace Core
 {
     public partial class Anima {
 
@@ -19,6 +19,6 @@ namespace Anima.Core
         private PluginManager plugMan;
 
         public MailSystem MailBoxes => mailBoxes;
-        public KnowledgeBase KnowledePool => pool;
+        public KnowledgeBase KnowledgePool => pool;
     }
 }

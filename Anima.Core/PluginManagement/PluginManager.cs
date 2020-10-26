@@ -1,27 +1,40 @@
-﻿using Anima.Core.Plugins;
+﻿using Core.Plugins;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
-using Module = Anima.Core.Plugins.Module;
+using Module = Core.Plugins.Module;
 
-namespace Anima.Core.PluginManagement
+namespace Core.PluginManagement
 {
     public class PluginManager
     {
+        [JsonInclude]
         private string[] directories =
         {
             new FileInfo(Assembly.GetExecutingAssembly().Location).Directory?.FullName,
             new FileInfo(Assembly.GetExecutingAssembly().Location).Directory?.FullName + @"\Plugins"
         };
 
-        private IEnumerable<Module> loadedPlugins;
+        private IEnumerable<Plugins.Module> loadedPlugins;
         private IEnumerable<Timer> runningPlugins;
 
+
+        public bool AddPluginDirectory(DirectoryInfo d)
+        {
+            if (d.Exists)
+            {
+                directories = directories.Append(d.FullName).ToArray();
+                return true;
+            }
+
+            return false;
+        }
 
         public void LoadAndRunPlugins()
         {
@@ -50,7 +63,8 @@ namespace Anima.Core.PluginManagement
 
         public IEnumerable<Timer> InitialisePluginTicks()
         {
-            return loadedPlugins.Select(plugin => new Timer(_ => plugin.Tick(),null,new TimeSpan(0,0,1), plugin.TickDelay));
+            int startDelay = 1;
+            return loadedPlugins.Select(plugin => new Timer(_ => plugin.Tick(),null,new TimeSpan(0,0,startDelay++), plugin.TickDelay));
         }
 
         public void ClosePlugins()
@@ -70,14 +84,14 @@ namespace Anima.Core.PluginManagement
             }
         }
 
-        public IEnumerable<Module> LoadPlugins()
+        public IEnumerable<Plugins.Module> LoadPlugins()
         {
             return directories.Where(Directory.Exists).SelectMany(path =>
                 new DirectoryInfo(path).EnumerateFiles().Where(fi => fi.Extension == ".dll")
                     .Select(fi => Assembly.LoadFile(fi.FullName))
                     .SelectMany(ass => ass.GetTypes())
-                    .Where(t => typeof(Module).IsAssignableFrom(t))
-                    .Select(t => Activator.CreateInstance(t) as Module)
+                    .Where(t => typeof(Plugins.Module).IsAssignableFrom(t))
+                    .Select(t => Activator.CreateInstance(t) as Plugins.Module)
             );
         }
     }

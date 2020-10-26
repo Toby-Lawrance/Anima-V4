@@ -3,11 +3,11 @@ using System.Collections.Concurrent;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
-using Anima.Core.CoreData;
-using Anima.Core.PluginManagement;
+using Core.CoreData;
+using Core.PluginManagement;
 using Newtonsoft.Json;
 
-namespace Anima.Core
+namespace Core
 {
     public partial class Anima
     {

@@ -5,19 +5,28 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
-namespace Anima.Core.CoreData
+namespace Core.CoreData
 {
     public class KnowledgeBase
     {
+        [JsonInclude]
         private readonly ConcurrentDictionary<string, KeyValuePair<Type,object>> _pool;
 
+        [JsonInclude]
         public ConcurrentDictionary<string, KeyValuePair<Type, object>> Pool => _pool;
 
         public KnowledgeBase()
         {
             _pool = new ConcurrentDictionary<string, KeyValuePair<Type, object>>();
+        }
+
+        public bool Exists(string id)
+        {
+            return _pool.ContainsKey(id);
         }
 
         //Inserting will only insert for null or non-existent values. This is safer for new things
@@ -48,10 +57,17 @@ namespace Anima.Core.CoreData
         public bool TryGetValue<T>(string id, out T value)
         {
 
-            if (_pool.ContainsKey(id) && (_pool[id].Value is T obj))
+            if (_pool.ContainsKey(id))
             {
-                value = obj;
-                return true;
+                try
+                {
+                    value = (T)(Convert.ChangeType(_pool[id].Value,_pool[id].Key));
+                    return true;
+                }
+                catch (InvalidCastException e)
+                {
+                    Anima.Instance.ErrorStream.WriteLine($"Invalid Cast:{e.Message}");
+                }
             }
 
             value = default(T);

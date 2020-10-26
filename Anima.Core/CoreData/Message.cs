@@ -1,7 +1,7 @@
-﻿using Anima.Core.Plugins;
+﻿using Core.Plugins;
 using Newtonsoft.Json;
 
-namespace Anima.Core
+namespace Core
 {
     public class Message
     {
