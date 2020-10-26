@@ -47,6 +47,24 @@ namespace Core
             plugMan.ClosePlugins();
         }
 
+        public void WriteLine(object s)
+        {
+            OutStream.WriteLineAsync(s.ToString());
+        }
+
+        public string ReadLine()
+        {
+            var t = InStream.ReadLineAsync();
+            t.Wait();
+            return t.Result ?? "";
+        }
+
+        public static string Serialize(object obj) => JsonConvert.SerializeObject(obj, Formatting.Indented,
+            new JsonSerializerSettings() {Converters = { new MyTypedKeyValueConverter() } });
+
+        public static T Deserialize<T>(string json) => JsonConvert.DeserializeObject<T>(json,
+            new JsonSerializerSettings() {Converters = { new MyTypedKeyValueConverter() } });
+
         [JsonIgnore]
         public TextWriter OutStream => outStream;
         [JsonIgnore]

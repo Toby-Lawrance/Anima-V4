@@ -8,6 +8,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace Core.CoreData
 {
@@ -42,6 +43,19 @@ namespace Core.CoreData
             return _pool.TryAdd(id, new KeyValuePair<Type, object>(typeof(T), val));
         }
 
+        public bool TrySetValue<T>(string id, T val)
+        {
+            var item = new KeyValuePair<Type, object>(typeof(T), val);
+            if (!_pool.ContainsKey(id))
+            {
+                return TryInsertValue(id,val);
+            }
+
+            var expectedVal = _pool[id];
+            var result = _pool.AddOrUpdate(id,(k) => item,(id,kvp1) => expectedVal.Value.Equals(kvp1.Value) ? item : kvp1);
+            return result.Value.Equals(item.Value);
+        }
+
         //This just does it
         public void SetValue<T>(string id, T val)
         {
@@ -56,22 +70,36 @@ namespace Core.CoreData
 
         public bool TryGetValue<T>(string id, out T value)
         {
-
-            if (_pool.ContainsKey(id))
+            if (_pool.ContainsKey(id) && _pool[id].Value is T obj)
             {
-                try
-                {
-                    value = (T)(Convert.ChangeType(_pool[id].Value,_pool[id].Key));
-                    return true;
-                }
-                catch (InvalidCastException e)
-                {
-                    Anima.Instance.ErrorStream.WriteLine($"Invalid Cast:{e.Message}");
-                }
+                value = obj;
+                return true;
             }
 
             value = default(T);
             return false;
+        }
+    }
+
+    public class MyTypedKeyValueConverter : Newtonsoft.Json.JsonConverter<KeyValuePair<Type,object>>
+    {
+        public override KeyValuePair<Type, object> ReadJson(JsonReader reader, Type objectType, KeyValuePair<Type, object> existingValue, bool hasExistingValue,
+            JsonSerializer serializer)
+        {
+            var kvpConv = new KeyValuePairConverter();
+
+            var obj = kvpConv.ReadJson(reader, objectType, existingValue, serializer);
+            if (obj is null) { return default(KeyValuePair<Type,object>); }
+
+            var (key, value) = (KeyValuePair<Type, object>)obj;
+            return new KeyValuePair<Type, object>(key, Convert.ChangeType(value, key));
+        }
+
+
+        public override void WriteJson(JsonWriter writer, KeyValuePair<Type, object> value, JsonSerializer serializer)
+        {
+            var kvpConv = new KeyValuePairConverter();
+            kvpConv.WriteJson(writer,value,serializer);
         }
     }
 }

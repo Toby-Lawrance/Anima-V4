@@ -15,7 +15,10 @@ namespace TestPlugin
         public override void Init()
         {
             base.Init();
-            Anima.Instance.KnowledgePool.TryInsertValue("Count", 0);
+            if (Anima.Instance.KnowledgePool.Exists("Count")) return;
+            var succ = Anima.Instance.KnowledgePool.TryInsertValue("Count", 0);
+            if(!succ) {Anima.Instance.ErrorStream.WriteLine("Unable to set count");}
+
         }
 
         public override void Tick()
@@ -23,8 +26,9 @@ namespace TestPlugin
             var succ = Core.Anima.Instance.KnowledgePool.TryGetValue("Count",out int Count);
             if (succ)
             {
-                Anima.Instance.OutStream.WriteLine($"Count:{Count}");
-                Anima.Instance.KnowledgePool.SetValue("Count", Count + 1);
+                Anima.Instance.WriteLine($"Count:{Count}");
+                var setSucc = Anima.Instance.KnowledgePool.TrySetValue("Count", Count + 1);
+                if(setSucc == false) {Anima.Instance.WriteLine("Unable to increment Count");}
             }
             else
             {
@@ -42,11 +46,11 @@ namespace TestPlugin
         {
             if (Core.Anima.Instance.MailBoxes.CheckNumMessages(this) == 0)
             {
-                Core.Anima.Instance.OutStream.WriteLine($"No messages for: {this.Identifier}");
+                Core.Anima.Instance.WriteLine($"No messages for: {this.Identifier}");
             }
             while (Core.Anima.Instance.MailBoxes.CheckNumMessages(this) > 0)
             {
-                Core.Anima.Instance.OutStream.WriteLine(Core.Anima.Instance.MailBoxes.GetMessage(this));
+                Core.Anima.Instance.WriteLine(Core.Anima.Instance.MailBoxes.GetMessage(this));
             }
             
         }
@@ -58,7 +62,9 @@ namespace TestPlugin
             public override void Init()
             {
                 base.Init();
-                Anima.Instance.KnowledgePool.TryInsertValue("Count", 0);
+                if (Anima.Instance.KnowledgePool.Exists("Count")) return;
+                var succ = Anima.Instance.KnowledgePool.TryInsertValue("Count", 0);
+                if (!succ) { Anima.Instance.ErrorStream.WriteLine("Unable to set count"); }
             }
 
             public override void Tick()

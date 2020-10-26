@@ -55,7 +55,7 @@ namespace Core.PluginManagement
             {
                 foreach (var plugin in loadedPlugins)
                 {
-                    Anima.Instance.OutStream.WriteLine($"Initialized:{plugin}");
+                    Anima.Instance.WriteLine($"Initialized:{plugin}");
                 }
             }
         }

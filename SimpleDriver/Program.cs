@@ -19,7 +19,7 @@ namespace SimpleDriver
                     var contents = fs.ReadToEnd();
                     if (!String.IsNullOrWhiteSpace(contents))
                     {
-                        anima = JsonConvert.DeserializeObject<Anima>(contents);
+                        anima = Anima.Deserialize<Anima>(contents);
                         if(anima is null) {Console.WriteLine("Loading failed");}
                         Console.WriteLine("Loaded in from state file");
                     }
@@ -30,15 +30,20 @@ namespace SimpleDriver
                 Console.WriteLine($"Could not find: {state.FullName}");
             }
             anima ??= Anima.Instance;
-            anima.Run();
-
-            //Save state
-            var newState = JsonConvert.SerializeObject(anima,Formatting.Indented);
-            //Quick way to remake file fresh
-            state.Delete();
-            using (var fs = new StreamWriter(state.Create()))
+            try
             {
-                fs.Write(newState);
+                anima.Run();
+            }
+            finally
+            {
+                //Save state
+                var newState = Anima.Serialize(anima);
+                //Quick way to remake file fresh
+                state.Delete();
+                using (var fs = new StreamWriter(state.Create()))
+                {
+                    fs.Write(newState);
+                }
             }
         }
     }
