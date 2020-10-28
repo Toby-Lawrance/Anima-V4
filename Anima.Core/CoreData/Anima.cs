@@ -47,9 +47,10 @@ namespace Core
             plugMan.ClosePlugins();
         }
 
-        public void WriteLine(object s)
+        public object WriteLine(object s)
         {
             OutStream.WriteLineAsync(s.ToString());
+            return s;
         }
 
         public string ReadLine()

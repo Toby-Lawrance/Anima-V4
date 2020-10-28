@@ -92,6 +92,7 @@ namespace Core.PluginManagement
                     .SelectMany(ass => ass.GetTypes())
                     .Where(t => typeof(Plugins.Module).IsAssignableFrom(t))
                     .Select(t => Activator.CreateInstance(t) as Plugins.Module)
+                    .Where(m => m.Enabled)
             );
         }
     }
