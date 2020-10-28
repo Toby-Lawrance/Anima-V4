@@ -15,20 +15,19 @@ namespace Core.Plugins
         public readonly string Identifier;
         public readonly string Description;
         public readonly TimeSpan TickDelay;
-        public readonly bool Enabled;
+        public bool Enabled = true;
         public readonly CancellationTokenSource Cancellation;
         protected List<Task> RunningTasks;
 
-        protected Module(string id,string desc, TimeSpan delay,bool enabled = true)
+        protected Module(string id,string desc, TimeSpan delay)
         {
             Identifier = id;
             Description = desc;
             TickDelay = delay;
-            Enabled = enabled;
             Cancellation = new CancellationTokenSource();
             RunningTasks = new List<Task>();
         }
-        protected Module(string id, string desc = "", int tick = 1, bool enabled = true) : this(id,desc,new TimeSpan(0,0,0,tick),enabled) {}
+        protected Module(string id, string desc = "", int tick = 1) : this(id,desc,new TimeSpan(0,0,0,tick)) {}
 
         public virtual void Init() {}
         public abstract void Tick();
