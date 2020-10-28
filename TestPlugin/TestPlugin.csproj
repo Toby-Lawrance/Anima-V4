@@ -1,11 +1,11 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>C:\Users\tobyl\Documents\Programming stuff\Anima-V4\Anima-V4\SimpleDriver\bin\Debug\net5.0\</OutputPath>
+    <OutputPath>C:\Users\tobyl\Documents\Programming stuff\Anima-V4\Anima-V4\SimpleDriver\bin\Debug</OutputPath>
   </PropertyGroup>
 
   <ItemGroup>

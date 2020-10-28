@@ -18,6 +18,7 @@ namespace NetworkPlugin
         public class MessageClient : Core.Plugins.Module
         {
             private List<(TcpClient,StreamWriter)> outBoundClients;
+            private bool SuccessfulSetup = false;
 
             public MessageClient() : base("MessageClient", "Sends messages to other computers", 10) { }
 
@@ -37,18 +38,20 @@ namespace NetworkPlugin
                         Anima.Instance.KnowledgePool.TryGetValue("IP-Addresses", out List<string> addresses);
                         Anima.Instance.KnowledgePool.TryGetValue("IP-Port", out int Port);
                         outBoundClients = addresses.Select(s => new IPEndPoint(IPAddress.Parse(s), Port)).Select(end => new TcpClient(end)).Select(c => (c, new StreamWriter(c.GetStream()))).ToList();
+                        SuccessfulSetup = true;
                     } else
                     {
                         Anima.Instance.KnowledgePool.TryInsertValue("IP-Addresses", new List<string>());
                         Anima.Instance.KnowledgePool.TryInsertValue("IP-Port", 0);
                         Anima.Instance.ErrorStream.WriteLine("Error: Needed to create values in Anima pool");
+                        outBoundClients = new List<(TcpClient, StreamWriter)>();
                     }
-                    
                 }
             }
 
             public override void Tick()
             {
+                if (!SuccessfulSetup) return;
                 if (Anima.Instance.KnowledgePool.Exists("Count"))
                 {
                     string message = Anima.Serialize(new KeyValuePair<string,KeyValuePair<Type,object>>("Count",Anima.Instance.KnowledgePool.Pool["Count"]));
@@ -60,6 +63,7 @@ namespace NetworkPlugin
             public override void Close()
             {
                 base.Close();
+                if (!SuccessfulSetup) return;
                 foreach(var client in outBoundClients)
                 {
                     client.Item1.Close();

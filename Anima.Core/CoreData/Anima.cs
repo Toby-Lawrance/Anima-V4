@@ -53,6 +53,12 @@ namespace Core
             return s;
         }
 
+        public string WriteLine(string s)
+        {
+            OutStream.WriteLineAsync(s);
+            return s;
+        }
+
         public string ReadLine()
         {
             var t = InStream.ReadLineAsync();
