@@ -43,6 +43,7 @@ namespace NetworkPlugin
                         var end = new IPEndPoint(address, Port);
                         server = new TcpListener(IPAddress.IPv6Any, Port);
                         server.Start();
+                        this.StartTask(ListenAndRespond,TaskCreationOptions.LongRunning);
                         SuccessfulSetup = true;
                     }
                     else
@@ -54,24 +55,32 @@ namespace NetworkPlugin
                 }
             }
 
+            private void ListenAndRespond()
+            {
+                while (true)
+                {
+                    try
+                    {
+                        TcpClient client = server.AcceptTcpClient();
+
+                        inStream = new StreamReader(client.GetStream());
+
+                        var s = inStream.ReadLine();
+                        Anima.Instance.WriteLine($"Received: {s} from: {client.Client.RemoteEndPoint}");
+                        var kvp = Anima.Deserialize<KeyValuePair<string, KeyValuePair<Type, object>>>(s);
+                        //Anima.Instance.KnowledgePool.TrySetValue(kvp.Key, kvp.Value.Value);
+                        client.Close();
+                    }
+                    catch (Exception e)
+                    {
+                        Anima.Instance.ErrorStream.WriteLine(e);
+                    }
+                }
+            }
+
             public override void Tick()
             {
                 if (!SuccessfulSetup) return;
-                try
-                {
-                    TcpClient client = server.AcceptTcpClient();
-
-                    inStream = new StreamReader(client.GetStream());
-
-                    var s = inStream.ReadLine();
-                    Anima.Instance.WriteLine($"Received: {s} from: {client.Client.RemoteEndPoint}");
-                    var kvp = Anima.Deserialize<KeyValuePair<string, KeyValuePair<Type, object>>>(s);
-                    //Anima.Instance.KnowledgePool.TrySetValue(kvp.Key, kvp.Value.Value);
-                }
-                catch (Exception e)
-                {
-                    Anima.Instance.ErrorStream.WriteLine(e);
-                }
             }
 
             public override void Close()
@@ -89,7 +98,7 @@ namespace NetworkPlugin
             private bool SuccessfulSetup = false;
             private ManualResetEvent GetHostEntryFinished = new ManualResetEvent(false);
 
-            public MessageClient() : base("MessageClient", "Sends messages to other computers", 10) { }
+            public MessageClient() : base("MessageClient", "Sends messages to other computers", 2) { }
 
             private (bool, TcpClient) TryConnect(IPAddress a, int p, TcpClient tcp)
             {
@@ -103,28 +112,6 @@ namespace NetworkPlugin
                     Anima.Instance.ErrorStream.WriteLine($"Unable to connect to:{a} because {e.Message}");
                     return (false, tcp);
                 }
-            }
-
-            private void TryAddresses(IAsyncResult state)
-            {
-                try
-                {
-                    var clientList = (List<TcpClient>)state.AsyncState;
-                    var entry = Dns.EndGetHostEntry(state);
-
-                    var connections = entry.AddressList.Select(a => (new TcpClient(AddressFamily.InterNetworkV6), a))
-                        .Select(tcpa => Task.Run(() => TryConnect(tcpa.a, port, tcpa.Item1))).ToArray();
-                    Task.WaitAll(connections);
-                    var working = connections.Where(t => t.Result.Item1).Select(r => r.Result.Item2);
-                    clientList.AddRange(working);
-                    GetHostEntryFinished.Set();
-                }
-                catch (Exception e)
-                {
-                    Anima.Instance.ErrorStream.WriteLine(e.Message);
-                    GetHostEntryFinished.Set();
-                }
-                
             }
 
             public override void Init()
@@ -143,21 +130,16 @@ namespace NetworkPlugin
                         Anima.Instance.KnowledgePool.TryGetValue("IP-Addresses", out IEnumerable<string> addresses);
                         Anima.Instance.KnowledgePool.TryGetValue("IP-Port", out port);
                         outBoundClients = new List<(TcpClient, StreamWriter)>();
-                        foreach (var s in addresses)
+                        foreach (var sAddress in addresses)
                         {
-                            var clientList = new List<TcpClient>();
-                            Anima.Instance.WriteLine($"Checking for hostname:{s}");
-                            GetHostEntryFinished.Reset();
-                            Dns.BeginGetHostEntry(s, TryAddresses, clientList);
-                            GetHostEntryFinished.WaitOne();
-                            if (clientList.Count > 0)
+                            Anima.Instance.WriteLine($"Checking for hostname:{sAddress} as an IP address");
+                            var IP = IPAddress.Parse(sAddress);
+                            var tcp = new TcpClient(AddressFamily.InterNetworkV6);
+                            var t = Task.Run(() => TryConnect(IP, port, tcp));
+                            t.Wait();
+                            if (t.Result.Item1)
                             {
-                                var workingClient = clientList.First();
-                                if (workingClient.GetStream() != Stream.Null)
-                                {
-                                    outBoundClients.Add((workingClient, new StreamWriter(workingClient.GetStream())));
-                                }
-                                
+                                outBoundClients.Add((t.Result.Item2,new StreamWriter(t.Result.Item2.GetStream())));
                             }
                         }
                         SuccessfulSetup = true;
@@ -174,12 +156,17 @@ namespace NetworkPlugin
 
             public override void Tick()
             {
-                if (!SuccessfulSetup) return;
+                //if (!SuccessfulSetup) return;
                 if (Anima.Instance.KnowledgePool.Exists("Count"))
                 {
+                    Anima.Instance.WriteLine($"Attempting to outWrite");
                     string message = Anima.Serialize(new KeyValuePair<string, KeyValuePair<Type, object>>("Count", Anima.Instance.KnowledgePool.Pool["Count"]));
-                    var tasks = outBoundClients.Select(tup => tup.Item2).Select(strem => strem.WriteLineAsync(message));
-                    Task.WaitAll(tasks.ToArray());
+                    var tasks = outBoundClients.Select(tup => tup.Item2).Select(strem => Task.Run(() =>
+                    {
+                        strem.WriteLine(message);
+                        strem.Flush();
+                    })).ToArray();
+                    Task.WaitAll(tasks);
                 }
             }
 

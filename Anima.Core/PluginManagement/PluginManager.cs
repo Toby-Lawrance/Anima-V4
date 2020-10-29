@@ -21,8 +21,8 @@ namespace Core.PluginManagement
             new FileInfo(Assembly.GetExecutingAssembly().Location).Directory?.FullName + @"\Plugins"
         };
 
-        private IEnumerable<Plugins.Module> loadedPlugins;
-        private IEnumerable<Timer> runningPlugins;
+        private List<Plugins.Module> loadedPlugins;
+        private List<Timer> runningPlugins;
 
 
         public bool AddPluginDirectory(DirectoryInfo d)
@@ -38,7 +38,7 @@ namespace Core.PluginManagement
 
         public void LoadAndRunPlugins()
         {
-            loadedPlugins = LoadPlugins();
+            loadedPlugins = LoadPlugins().ToList();
             InitialisePlugins();
             runningPlugins = InitialisePluginTicks().ToList();
         }
