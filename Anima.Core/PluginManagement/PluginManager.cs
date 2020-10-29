@@ -45,18 +45,15 @@ namespace Core.PluginManagement
 
         public void InitialisePlugins()
         {
-            var initTasks = loadedPlugins.Select(plugin => Task.Run(plugin.Init));
+            var initTasks = loadedPlugins.Select(plugin => Task.Run(() =>
+            { 
+                plugin.Init();
+                Anima.Instance.WriteLine($"Initialized:{plugin}");
+            }));
             var succ = Task.WaitAll(initTasks.ToArray(),new TimeSpan(0,0,1,0));
             if (!succ)
             {
                 Anima.Instance.ErrorStream.WriteLine("Plugin Initialization failed");
-            }
-            else
-            {
-                foreach (var plugin in loadedPlugins)
-                {
-                    Anima.Instance.WriteLine($"Initialized:{plugin}");
-                }
             }
         }
 

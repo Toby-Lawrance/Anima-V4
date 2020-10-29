@@ -9,6 +9,7 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Linq;
 
 namespace Core.CoreData
 {
@@ -79,6 +80,18 @@ namespace Core.CoreData
             value = default(T);
             return false;
         }
+
+        public bool TryGetValue<T>(string id, out IEnumerable<T> value)
+        {
+            if (_pool.ContainsKey(id) && _pool[id].Value.GetType().IsArray)
+            {
+                value = ((object[])_pool[id].Value).Cast<T>();
+                return true;
+            }
+
+            value = default(IEnumerable<T>);
+            return false;
+        }
     }
 
     public class MyTypedKeyValueConverter : Newtonsoft.Json.JsonConverter<KeyValuePair<Type,object>>
@@ -92,7 +105,19 @@ namespace Core.CoreData
             if (obj is null) { return default(KeyValuePair<Type,object>); }
 
             var (key, value) = (KeyValuePair<Type, object>)obj;
-            return new KeyValuePair<Type, object>(key, Convert.ChangeType(value, key));
+            
+            if (value is IConvertible)
+            {
+                return new KeyValuePair<Type, object>(key, Convert.ChangeType(value, key));
+            }
+            else if (value is JArray jarr)
+            {
+                var arr = jarr.Select(jv => Convert.ChangeType(jv, key.GetElementType())).ToArray();
+                return new KeyValuePair<Type, object>(key,arr);
+            }
+
+            return new KeyValuePair<Type, object>(key, value);
+            
         }
 
 
