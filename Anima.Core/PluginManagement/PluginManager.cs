@@ -37,9 +37,9 @@ namespace Core.PluginManagement
 
         public void LoadAndRunPlugins()
         {
-            loadedPlugins = LoadPlugins().ToList();
+            loadedPlugins = LoadPlugins();
             InitialisePlugins();
-            runningPlugins = InitialisePluginTicks().ToList();
+            runningPlugins = InitialisePluginTicks();
         }
 
         public void InitialisePlugins()
@@ -57,11 +57,11 @@ namespace Core.PluginManagement
         }
 
 
-        public IEnumerable<Timer> InitialisePluginTicks()
+        public List<Timer> InitialisePluginTicks()
         {
             int startDelay = 1;
             return loadedPlugins.Select(plugin =>
-                new Timer(_ => plugin.Tick(), null, new TimeSpan(0, 0, startDelay++), plugin.TickDelay));
+                new Timer(_ => plugin.Tick(), null, new TimeSpan(0, 0, startDelay++), plugin.TickDelay)).ToList();
         }
 
         public void ClosePlugins()
@@ -81,7 +81,7 @@ namespace Core.PluginManagement
             }
         }
 
-        public IEnumerable<Plugins.Module> LoadPlugins()
+        public List<Plugins.Module> LoadPlugins()
         {
             if (!Anima.Instance.KnowledgePool.Exists("Enabled-Plugins"))
             {
@@ -93,8 +93,10 @@ namespace Core.PluginManagement
                 Anima.Instance.KnowledgePool.TryInsertValue("Disabled-Plugins", new string[] { });
             }
 
-            Anima.Instance.KnowledgePool.TryGetValue("Enabled-Plugins", out IEnumerable<string> enabled);
-            Anima.Instance.KnowledgePool.TryGetValue("Disabled-Plugins", out IEnumerable<string> disabled);
+            Anima.Instance.KnowledgePool.TryGetValue("Enabled-Plugins", out IEnumerable<string> IEenabled);
+            Anima.Instance.KnowledgePool.TryGetValue("Disabled-Plugins", out IEnumerable<string> IEdisabled);
+            var enabled = IEenabled.ToList();
+            var disabled = IEdisabled.ToList();
 
             var mods = directories.Where(Directory.Exists).SelectMany(path =>
                 new DirectoryInfo(path).EnumerateFiles().Where(fi => fi.Extension == ".dll")
@@ -106,9 +108,10 @@ namespace Core.PluginManagement
                     {
                         var inEnabled = enabled.Contains(m.Identifier);
                         var inDisabled = disabled.Contains(m.Identifier);
-                        if (!inEnabled && !inDisabled)
+                        if (!inEnabled && !inDisabled && m.Enabled)
                         {
-                            enabled.Append(m.Identifier);
+                            enabled.Add(m.Identifier);
+                            Anima.Instance.WriteLine($"Adding unknown plugin:{m.Identifier} to the Enabled list");
                         }
                         else if (inDisabled)
                         {
@@ -118,7 +121,10 @@ namespace Core.PluginManagement
                         return m;
                     })
                     .Where(m => m.Enabled)
-            );
+            ).ToList();
+            Anima.Instance.WriteLine($"Enabled Plugin count: {enabled.Count}");
+            Anima.Instance.WriteLine($"Disabled Plugin count: {disabled.Count}");
+
             Anima.Instance.KnowledgePool.TrySetValue("Enabled-Plugins", enabled.ToArray());
             Anima.Instance.KnowledgePool.TrySetValue("Disabled-Plugins",disabled.ToArray());
             return mods;
