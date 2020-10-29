@@ -196,7 +196,7 @@ namespace NetworkPlugin
                 if (!SuccessfulSetup) return;
                 if (!Anima.Instance.KnowledgePool.Exists("Count")) return;
 
-                Anima.Instance.WriteLine($"Attempting to outWrite");
+                Anima.Instance.WriteLine($"Attempting to send network messages");
 
                 var message = Anima.Serialize(new KeyValuePair<string, KeyValuePair<Type, object>>("Count", Anima.Instance.KnowledgePool.Pool["Count"]));
                 var tasks = outBoundClients.Where(tup => tup.Value > (MaxFailures * -1)).Select(tup => TrySendMessage(tup.Key,message)).ToArray();
