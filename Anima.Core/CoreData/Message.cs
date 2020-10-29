@@ -10,18 +10,18 @@ namespace Core
 
         public string Note;
 
-        public object Value;
+        public string Value;
 
         public Message() {}
 
-        public Message(string sender, string receiver, object value)
+        public Message(string sender, string receiver, string value)
         {
             this.Sender = sender;
             this.Receiver = receiver;
             Value = value;
         }
 
-        public Message(string sender, string receiver, string note, object value)
+        public Message(string sender, string receiver, string note, string value)
         {
             this.Sender = sender;
             this.Receiver = receiver;
@@ -29,7 +29,8 @@ namespace Core
             Value = value;
         }
 
-        public static Message CreateMessage(Module mod, string receiver, object val) => new Message(mod.Identifier,receiver,val);
+        public static Message CreateMessage(Module mod, string receiver, string val) => new Message(mod.Identifier,receiver,val);
+        public static Message CreateMessageFromObject(Module mod, string receiver, object val) => new Message(mod.Identifier, receiver, Anima.Serialize(val));
 
         public override string ToString()
         {
