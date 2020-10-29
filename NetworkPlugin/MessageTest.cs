@@ -61,14 +61,19 @@ namespace NetworkPlugin
                 {
                     try
                     {
-                        TcpClient client = server.AcceptTcpClient();
+                        var client = server.AcceptTcpClient();
 
                         inStream = new StreamReader(client.GetStream());
 
-                        var s = inStream.ReadLine();
-                        Anima.Instance.WriteLine($"Received: {s} from: {client.Client.RemoteEndPoint}");
-                        var kvp = Anima.Deserialize<KeyValuePair<string, KeyValuePair<Type, object>>>(s);
-                        //Anima.Instance.KnowledgePool.TrySetValue(kvp.Key, kvp.Value.Value);
+                        string ReadContents = "";
+                        string line = "";
+                        while ((line = inStream.ReadLine()) != "<EOF>")
+                        {
+                            ReadContents += line + Anima.NewLineChar;
+                        }
+                        Anima.Instance.WriteLine($"Received: {ReadContents} from: {client.Client.RemoteEndPoint}");
+                        Anima.Instance.MailBoxes.PostMessage(new Message(client.Client.RemoteEndPoint.ToString(), this.Identifier,
+                            "Remote", ReadContents));
                         client.Close();
                     }
                     catch (Exception e)

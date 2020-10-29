@@ -66,11 +66,29 @@ namespace Core
             return t.Result ?? "";
         }
 
-        public static string Serialize(object obj) => JsonConvert.SerializeObject(obj, Formatting.Indented,
-            new JsonSerializerSettings() {Converters = { new MyTypedKeyValueConverter() } });
+        public static readonly string NewLineChar = Environment.NewLine;
+        public static readonly string EofToken = NewLineChar+"<EOF>"+NewLineChar;
 
-        public static T Deserialize<T>(string json) => JsonConvert.DeserializeObject<T>(json,
-            new JsonSerializerSettings() {Converters = { new MyTypedKeyValueConverter() } });
+        public static string Serialize(object obj) => JsonConvert.SerializeObject(obj, Formatting.Indented,
+            new JsonSerializerSettings() {Converters = { new MyTypedKeyValueConverter() } }) + EofToken;
+
+        public static T Deserialize<T>(string json)
+        {
+            try
+            {
+                if (json.EndsWith(EofToken))
+                {
+                    json = json.Remove(json.Length - EofToken.Length);
+                }
+                return JsonConvert.DeserializeObject<T>(json,
+                    new JsonSerializerSettings() { Converters = { new MyTypedKeyValueConverter() } });
+            }
+            catch (Exception e)
+            {
+                Anima.Instance.ErrorStream.WriteLine($"Error deserializing: {json}\n Due to: {e.Message}");
+                return default(T);
+            }
+        }
 
         [JsonIgnore]
         public TextWriter OutStream => outStream;
