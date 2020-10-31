@@ -110,7 +110,14 @@ namespace Core.PluginManagement
             var mods = directories.Where(Directory.Exists).SelectMany(path =>
                 new DirectoryInfo(path).EnumerateFiles().Where(fi => fi.Extension == ".dll")
                     .Select(fi => Assembly.LoadFile(fi.FullName))
-                    .SelectMany(ass => ass.GetReferencedAssemblies().Select(AppDomain.CurrentDomain.Load).Append(ass))
+                    .Select(ass =>
+                    {
+                        foreach (var assembly in ass.GetReferencedAssemblies())
+                        {
+                            AppDomain.CurrentDomain.Load(assembly);
+                        }
+                        return ass;
+                    })
                     .SelectMany(ass => ass.GetTypes())
                     .Where(t => typeof(Plugins.Module).IsAssignableFrom(t))
                     .Select(t => Activator.CreateInstance(t) as Plugins.Module)
