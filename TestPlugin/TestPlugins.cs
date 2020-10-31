@@ -57,7 +57,7 @@ namespace TestPlugin
 
         public class TestModule3 : Module
         {
-            public TestModule3() : base("Embedded Plugin", "Test for embedded",TimeSpan.FromSeconds(1)) {}
+            public TestModule3() : base("Embedded Plugin", "Test for embedded",TimeSpan.FromSeconds(1)) { Enabled = false; }
 
             public override void Init()
             {

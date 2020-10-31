@@ -21,7 +21,7 @@ namespace NetworkPlugin
             private TcpListener server;
             private bool SuccessfulSetup = false;
 
-            public MessageServer() : base("MessageServer", "Receives messages from other servers", 1) { }
+            public MessageServer() : base("MessageServer", "Receives messages from other servers", 1) { Enabled = false; }
 
             public override void Init()
             {
@@ -105,7 +105,7 @@ namespace NetworkPlugin
 
             private static readonly int MaxFailures = 10;
 
-            public MessageClient() : base("MessageClient", "Sends messages to other computers", 2) { }
+            public MessageClient() : base("MessageClient", "Sends messages to other computers", 2) { Enabled = false; }
 
             private async Task<(bool,IPAddress)> TryConnect(IPAddress a, int p)
             {
