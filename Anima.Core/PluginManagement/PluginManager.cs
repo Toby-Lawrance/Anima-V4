@@ -90,6 +90,11 @@ namespace Core.PluginManagement
             }
         }
 
+        private static Assembly AssemblyResolve(object sender, ResolveEventArgs args)
+        {
+            return AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.FullName == args.Name);
+        }
+
         public List<Plugins.Module> LoadPlugins()
         {
             if (!Anima.Instance.KnowledgePool.Exists("Enabled-Plugins"))
@@ -101,11 +106,13 @@ namespace Core.PluginManagement
             {
                 Anima.Instance.KnowledgePool.TryInsertValue("Disabled-Plugins", new string[] { });
             }
-
+            
             Anima.Instance.KnowledgePool.TryGetValue("Enabled-Plugins", out IEnumerable<string> IEenabled);
             Anima.Instance.KnowledgePool.TryGetValue("Disabled-Plugins", out IEnumerable<string> IEdisabled);
             var enabled = IEenabled.ToList();
             var disabled = IEdisabled.ToList();
+
+            AppDomain.CurrentDomain.AssemblyResolve += AssemblyResolve;
 
             var mods = directories.Where(Directory.Exists).SelectMany(path =>
                 new DirectoryInfo(path).EnumerateFiles().Where(fi => fi.Extension == ".dll")
@@ -114,7 +121,7 @@ namespace Core.PluginManagement
                     {
                         foreach (var assembly in ass.GetReferencedAssemblies())
                         {
-                            AppDomain.CurrentDomain.Load(assembly);
+                            Assembly.Load(assembly);
                         }
                         return ass;
                     })
@@ -129,6 +136,11 @@ namespace Core.PluginManagement
                         {
                             enabled.Add(m.Identifier);
                             Anima.Instance.WriteLine($"Adding unknown plugin:{m.Identifier} to the Enabled list");
+                        }
+                        else if (!inEnabled && !inDisabled && !m.Enabled)
+                        {
+                            disabled.Add(m.Identifier);
+                            Anima.Instance.WriteLine($"Adding unknown plugin:{m.Identifier} to the Disabled list");
                         }
                         else if (inDisabled)
                         {
