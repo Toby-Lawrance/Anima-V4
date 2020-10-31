@@ -9,6 +9,10 @@
     <OutputPath>../build</OutputPath>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <OutputPath>../build</OutputPath>
+  </PropertyGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\Anima.Core\Anima.Core.csproj" />
   </ItemGroup>
