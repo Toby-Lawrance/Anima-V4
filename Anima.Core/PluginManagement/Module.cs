@@ -14,7 +14,7 @@ namespace Core.Plugins
     {
         public readonly string Identifier;
         public readonly string Description;
-        public readonly TimeSpan TickDelay;
+        public TimeSpan TickDelay;
         public bool Enabled = true;
         public readonly CancellationTokenSource Cancellation;
         protected List<Task> RunningTasks;

@@ -76,9 +76,16 @@ namespace NetworkPlugin
                             "Remote", ReadContents));
                         client.Close();
                     }
+                    catch(SocketException se)
+                    {
+                        if (se.SocketErrorCode == SocketError.AddressFamilyNotSupported)
+                        {
+                            Anima.Instance.ErrorStream.WriteLine(se.Message);
+                        }
+                    }
                     catch (Exception e)
                     {
-                        Anima.Instance.ErrorStream.WriteLine(e);
+                        Anima.Instance.ErrorStream.WriteLine(e.Message);
                     }
                 }
             }
