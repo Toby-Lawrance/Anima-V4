@@ -16,8 +16,7 @@ namespace Core.PluginManagement
     {
         [JsonInclude] private string[] directories =
         {
-            new FileInfo(Assembly.GetExecutingAssembly().Location).Directory?.FullName,
-            new FileInfo(Assembly.GetExecutingAssembly().Location).Directory?.FullName + @"\Plugins"
+            new FileInfo(Assembly.GetExecutingAssembly().Location).Directory?.FullName
         };
 
         private List<Plugins.Module> loadedPlugins;
