@@ -8,9 +8,8 @@ namespace TestPlugin
 {
     public class TestModule : Module
     {
-        private static string name = "Test Plugin";
 
-        public TestModule() : base(name,"A test plugin",TimeSpan.FromSeconds(1)) {}
+        public TestModule() : base("Test Plugin", "A test plugin",TimeSpan.FromSeconds(1)) {}
 
         public override void Init()
         {
@@ -54,24 +53,26 @@ namespace TestPlugin
             }
             
         }
+    }
 
-        public class TestModule3 : Module
+    public class TestModule3 : Module
+    {
+        public TestModule3() : base("Test Plugin 3", "Test for embedded", TimeSpan.FromSeconds(1)) { Enabled = true; }
+
+        public override void Init()
         {
-            public TestModule3() : base("Embedded Plugin", "Test for embedded",TimeSpan.FromSeconds(1)) { Enabled = false; }
+            base.Init();
+            Anima.Instance.KnowledgePool.TryInsertValue("Count", 0);
+        }
 
-            public override void Init()
-            {
-                base.Init();
-                if (Anima.Instance.KnowledgePool.Exists("Count")) return;
-                var succ = Anima.Instance.KnowledgePool.TryInsertValue("Count", 0);
-                if (!succ) { Anima.Instance.ErrorStream.WriteLine("Unable to set count"); }
-            }
+        public override void Tick()
+        {
+            var succ = Anima.Instance.KnowledgePool.TryGetValue("Count", out int Count);
+            if(!succ) {return;}
 
-            public override void Tick()
-            {
-                var succ = Anima.Instance.KnowledgePool.TryGetValue("Count", out int Count);
-                Anima.Instance.MailBoxes.PostMessage(Message.CreateMessage(this, "Test Plugin 2", string.Concat(Enumerable.Repeat("a",Count))));
-            }
+            var NetMsg = new Core.Network.NetMessage(Environment.MachineName,this.Identifier,"Test Plugin 2", string.Concat(Enumerable.Repeat("a", Count)));
+            var Msg = Message.CreateMessage(this, "Relay-Client", Anima.Serialize(NetMsg));
+            Anima.Instance.MailBoxes.PostMessage(Msg);
         }
     }
 }

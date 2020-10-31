@@ -37,6 +37,15 @@ namespace Core.PluginManagement
 
         public void LoadAndRunPlugins()
         {
+            foreach (var directory in directories)
+            {
+                var d = new DirectoryInfo(directory);
+                if (!d.Exists)
+                {
+                    d.Create();
+                }
+            }
+
             loadedPlugins = LoadPlugins();
             InitialisePlugins();
             runningPlugins = InitialisePluginTicks();
