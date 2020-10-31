@@ -151,8 +151,6 @@ namespace Core.PluginManagement
                     })
                     .Where(m => m.Enabled)
             ).ToList();
-            Anima.Instance.WriteLine($"Enabled Plugin count: {enabled.Count}");
-            Anima.Instance.WriteLine($"Disabled Plugin count: {disabled.Count}");
 
             Anima.Instance.KnowledgePool.TrySetValue("Enabled-Plugins", enabled.ToArray());
             Anima.Instance.KnowledgePool.TrySetValue("Disabled-Plugins",disabled.ToArray());
