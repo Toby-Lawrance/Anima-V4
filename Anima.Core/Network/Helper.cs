@@ -69,7 +69,11 @@ namespace Core.Network
 
         public static async Task<(bool, TcpClient)> TrySendMessage(TcpClient tcp, string message)
         {
-            if (tcp is null) return (false, null);
+            if (tcp is null)
+            {
+                Anima.Instance.ErrorStream.WriteLine($"Tcp Client is null");
+                return (false, null);
+            }
 
             var strem = new StreamWriter(tcp.GetStream());
             await strem.WriteLineAsync(message);
