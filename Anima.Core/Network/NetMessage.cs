@@ -5,20 +5,21 @@ namespace Core.Network
 {
     public class NetMessage
     {
-        public readonly string SendHost;
         [JsonInclude]
-        public readonly string ReceiveHost;
+        public string SendHost = "";
+        [JsonInclude]
+        public string ReceiveHost = "";
 
         [JsonInclude]
-        public readonly string SendPlugin;
+        public string SendPlugin = "";
         [JsonInclude]
-        public readonly string ReceivePlugin;
+        public string ReceivePlugin = "";
 
         [JsonInclude]
         public bool GetRequest = false;
 
         [JsonInclude]
-        public readonly string Value;
+        public string Value = "";
 
         public NetMessage() {}
 
