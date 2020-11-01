@@ -30,6 +30,19 @@ namespace SimpleDriver
                 Console.WriteLine($"Could not find: {state.FullName}");
             }
             anima ??= Anima.Instance;
+
+            Console.CancelKeyPress += delegate(object sender, ConsoleCancelEventArgs e)
+                {
+                    //Save state
+                    var newState = Anima.Serialize(anima);
+                    //Quick way to remake file fresh
+                    state.Delete();
+                    using (var fs = new StreamWriter(state.Create()))
+                    {
+                        fs.Write(newState);
+                    }
+                };
+
             try
             {
                 anima.Run();
