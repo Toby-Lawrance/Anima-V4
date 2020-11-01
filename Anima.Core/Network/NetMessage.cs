@@ -20,10 +20,15 @@ namespace Core.Network
         [JsonInclude]
         public readonly string Value;
 
-        public NetMessage()
+        public NetMessage() {}
+
+        public NetMessage(bool Get)
         {
-            SendHost = Environment.MachineName;
-            GetRequest = true;
+            if (Get)
+            {
+                SendHost = Environment.MachineName;
+                GetRequest = true;
+            }
         }
 
         public NetMessage(string receiveHost, string sendPlugin, string receivePlugin, string value)
