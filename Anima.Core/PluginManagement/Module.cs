@@ -33,6 +33,9 @@ namespace Core.Plugins
         public abstract void Tick();
         public virtual void Close() { Cancellation.Cancel(); }
 
+        public virtual string Serialize() => "";
+        public virtual void Deserialize(string jsonData) {}
+
         public void StartTask(Action a,TaskCreationOptions tco = TaskCreationOptions.None)
         {
             TaskFactory tf = new TaskFactory(Cancellation.Token, tco, TaskContinuationOptions.None, null);

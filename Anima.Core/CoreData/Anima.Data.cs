@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Linq;
 using System.Net.Http.Headers;
 using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
 using Core.CoreData;
 using Core.PluginManagement;
 using Newtonsoft.Json;
@@ -14,11 +15,9 @@ namespace Core
     public partial class Anima {
 
         private MailSystem mailBoxes;
-        private KnowledgeBase pool;
-        [JsonIgnore]
+        [JsonInclude]
         private PluginManager plugMan;
 
         public MailSystem MailBoxes => mailBoxes;
-        public KnowledgeBase KnowledgePool => pool;
     }
 }

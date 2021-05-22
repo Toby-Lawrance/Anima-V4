@@ -14,69 +14,45 @@ namespace Core.CoreData
     public class MailSystem
     {
         [JsonInclude]
-        private readonly ConcurrentDictionary<string, ConcurrentQueue<Message>> _mailBoxes;
-
-        [JsonInclude]
-        public ConcurrentDictionary<string, ConcurrentQueue<Message>> MailBoxes => _mailBoxes;
+        public ConcurrentDictionary<string, MailBox> MailBoxes { get; }
 
         public MailSystem()
         {
-            _mailBoxes = new ConcurrentDictionary<string, ConcurrentQueue<Message>>();
+            MailBoxes = new ConcurrentDictionary<string, MailBox>();
         }
-
-
-        public bool PostMessage(Message value)
+        
+        public bool PostMessage<T>(Message<T> value)
         {
             if (value is null)
             {
                 return false;
             }
 
-            string receiver = value.Receiver;
+            var receiver = value.Receiver;
             if (IsNullOrWhiteSpace(receiver))
             {
                 return false;
             }
 
-            if (!_mailBoxes.ContainsKey(receiver))
+            if (!MailBoxes.ContainsKey(receiver))
             {
-                _mailBoxes[receiver] = new ConcurrentQueue<Message>();
+                MailBoxes[receiver] = new MailBox();
             }
 
-            _mailBoxes[receiver].Enqueue(value);
+            MailBoxes[receiver].PostMessage(value);
             return true;
         }
 
         public int CheckNumMessages(Module mod)
         {
-            string id = mod.Identifier;
-            if (!_mailBoxes.ContainsKey(id))
-            {
-                return 0;
-            }
-
-            return _mailBoxes[id].Count;
+            var id = mod.Identifier;
+            return !MailBoxes.ContainsKey(id) ? 0 : MailBoxes[id].CheckTotalNumMessages();
         }
 
-        public Message GetMessage(Module mod)
+        public Message<T> GetMessage<T>(Module mod, string box = "default")
         {
-            string id = mod.Identifier;
-            if (!_mailBoxes.ContainsKey(id))
-            {
-                return null;
-            }
-
-            if (CheckNumMessages(mod) > 0)
-            {
-                var result = _mailBoxes[id].TryDequeue(out Message firstMessage);
-                if (result)
-                {
-                    return firstMessage;
-                }
-            }
-
-            //No messages or unable to dequeue
-            return null;
+            var id = mod.Identifier;
+            return !MailBoxes.ContainsKey(id) ? null : MailBoxes[id].GetMessage<T>(box);
         }
     }
 }

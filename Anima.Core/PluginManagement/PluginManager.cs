@@ -8,6 +8,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
+using Core.CoreData;
 using Module = Core.Plugins.Module;
 
 namespace Core.PluginManagement
@@ -18,6 +19,8 @@ namespace Core.PluginManagement
         {
             new FileInfo(Assembly.GetExecutingAssembly().Location).Directory?.FullName
         };
+
+        [JsonInclude] public KnowledgeBase<string[]> pluginInfo;
 
         private List<Plugins.Module> loadedPlugins;
         private List<Timer> runningPlugins;
@@ -96,18 +99,18 @@ namespace Core.PluginManagement
 
         public List<Plugins.Module> LoadPlugins()
         {
-            if (!Anima.Instance.KnowledgePool.Exists("Enabled-Plugins"))
+            if (!pluginInfo.Exists("Enabled-Plugins"))
             {
-                Anima.Instance.KnowledgePool.TryInsertValue("Enabled-Plugins", new string[] { });
+                pluginInfo.TryInsertValue("Enabled-Plugins", new string[] { });
             }
 
-            if (!Anima.Instance.KnowledgePool.Exists("Disabled-Plugins"))
+            if (!pluginInfo.Exists("Disabled-Plugins"))
             {
-                Anima.Instance.KnowledgePool.TryInsertValue("Disabled-Plugins", new string[] { });
+                pluginInfo.TryInsertValue("Disabled-Plugins", new string[] { });
             }
             
-            Anima.Instance.KnowledgePool.TryGetValue("Enabled-Plugins", out IEnumerable<string> IEenabled);
-            Anima.Instance.KnowledgePool.TryGetValue("Disabled-Plugins", out IEnumerable<string> IEdisabled);
+            pluginInfo.TryGetValue("Enabled-Plugins", out string[] IEenabled);
+            pluginInfo.TryGetValue("Disabled-Plugins", out string[] IEdisabled);
             var enabled = IEenabled.ToList();
             var disabled = IEdisabled.ToList();
 
@@ -151,8 +154,8 @@ namespace Core.PluginManagement
                     .Where(m => m.Enabled)
             ).ToList();
 
-            Anima.Instance.KnowledgePool.TrySetValue("Enabled-Plugins", enabled.ToArray());
-            Anima.Instance.KnowledgePool.TrySetValue("Disabled-Plugins",disabled.ToArray());
+            pluginInfo.TrySetValue("Enabled-Plugins", enabled.ToArray());
+            pluginInfo.TrySetValue("Disabled-Plugins",disabled.ToArray());
             return mods;
         }
     }

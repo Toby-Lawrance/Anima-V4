@@ -17,15 +17,16 @@ namespace Core
 
         public Anima(TextWriter ostream, TextReader istream, TextWriter estream)
         {
-            SetStreams(ostream,istream,estream);
-            pool = new KnowledgeBase();
+            SetStreams(ostream, istream, estream);
             mailBoxes = new MailSystem();
             plugMan = new PluginManager();
 
             _instance ??= this;
         }
 
-        public Anima() : this(null, null, null) { }
+        public Anima() : this(null, null, null)
+        {
+        }
 
         public void SetStreams(TextWriter ostream, TextReader istream, TextWriter estream)
         {
@@ -44,33 +45,51 @@ namespace Core
             {
                 input = InStream.ReadLine();
             } while (input != "quit");
+
             plugMan.ClosePlugins();
         }
 
         public object WriteLine(object s)
         {
+            if (OutStream is null)
+            {
+                throw new Exception("No Output Stream assigned");
+            }
+
             OutStream.WriteLineAsync(s.ToString());
             return s;
         }
 
         public string WriteLine(string s)
         {
+            if (OutStream is null)
+            {
+                throw new Exception("No Output Stream assigned");
+            }
+
             OutStream.WriteLineAsync(s);
             return s;
         }
 
         public string ReadLine()
         {
+            if (InStream is null)
+            {
+                throw new Exception("No Input Stream assigned");
+            }
+
             var t = InStream.ReadLineAsync();
             t.Wait();
             return t.Result ?? "";
         }
 
         public static readonly string NewLineChar = Environment.NewLine;
-        public static readonly string EofToken = NewLineChar+"<EOF>"+NewLineChar;
+        public static readonly string EofToken = NewLineChar + "<EOF>" + NewLineChar;
 
-        public static string Serialize(object obj) => JsonConvert.SerializeObject(obj, Formatting.Indented,
-            new JsonSerializerSettings() {Converters = { new MyTypedKeyValueConverter() } }) + EofToken;
+        public static string Serialize(object obj)
+        {
+            return JsonConvert.SerializeObject(obj, Formatting.Indented) + EofToken;
+        }
 
         public static T Deserialize<T>(string json)
         {
@@ -80,28 +99,22 @@ namespace Core
                 {
                     json = json.Remove(json.Length - EofToken.Length);
                 }
-                return JsonConvert.DeserializeObject<T>(json,
-                    new JsonSerializerSettings() { Converters = { new MyTypedKeyValueConverter() } });
+
+                return JsonConvert.DeserializeObject<T>(json);
             }
             catch (Exception e)
             {
-                Anima.Instance.ErrorStream.WriteLine($"Error deserializing: {json}\n Due to: {e.Message}");
-                return default(T);
+                Instance.ErrorStream.WriteLine($"Error deserializing: {json}\n Due to: {e.Message}");
+                return default;
             }
         }
 
-        [JsonIgnore]
-        public TextWriter OutStream => outStream;
-        [JsonIgnore]
-        public TextReader InStream => inStream;
-        [JsonIgnore]
-        public TextWriter ErrorStream => errorStream;
+        [JsonIgnore] public TextWriter OutStream => outStream;
+        [JsonIgnore] public TextReader InStream => inStream;
+        [JsonIgnore] public TextWriter ErrorStream => errorStream;
 
-        [JsonIgnore]
-        private TextWriter outStream;
-        [JsonIgnore]
-        private TextReader inStream;
-        [JsonIgnore]
-        private TextWriter errorStream;
+        [JsonIgnore] private TextWriter outStream;
+        [JsonIgnore] private TextReader inStream;
+        [JsonIgnore] private TextWriter errorStream;
     }
 }

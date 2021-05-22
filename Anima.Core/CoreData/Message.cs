@@ -1,36 +1,21 @@
-﻿using Core.Plugins;
+﻿using Core.CoreData;
+using Core.Plugins;
 using Newtonsoft.Json;
 
 namespace Core
 {
-    public class Message
+    public class Message<T> : MessageBase
     {
-        public string Sender;
-        public string Receiver;
+        public T Value;
 
-        public string Note;
-
-        public string Value;
-
-        public Message() {}
-
-        public Message(string sender, string receiver, string value)
+        public Message(string sender, string receiver, T value, string note = "", string receiveBox = "default", string sendReturnBox = "default")
         {
             this.Sender = sender;
             this.Receiver = receiver;
             Value = value;
         }
-
-        public Message(string sender, string receiver, string note, string value)
-        {
-            this.Sender = sender;
-            this.Receiver = receiver;
-            this.Note = note;
-            Value = value;
-        }
-
-        public static Message CreateMessage(Module mod, string receiver, string val) => new Message(mod.Identifier,receiver,val);
-        public static Message CreateMessageFromObject(Module mod, string receiver, object val) => new Message(mod.Identifier, receiver, Anima.Serialize(val));
+        
+        public static Message<T> CreateMessage(Module mod, string receiver, T val) => new(mod.Identifier,receiver,val);
 
         public override string ToString()
         {
