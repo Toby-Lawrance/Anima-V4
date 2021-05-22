@@ -17,6 +17,6 @@ namespace Core
         private PluginManager plugMan;
 
         [JsonInclude]
-        public MailSystem MailBoxes { get; }
+        public MailSystem SystemMail { get; }
     }
 }

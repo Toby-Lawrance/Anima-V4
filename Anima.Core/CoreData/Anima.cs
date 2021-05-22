@@ -18,7 +18,7 @@ namespace Core
         public Anima(TextWriter? ostream, TextReader? istream, TextWriter? estream)
         {
             SetStreams(ostream, istream, estream);
-            MailBoxes = new MailSystem();
+            SystemMail = new MailSystem();
             plugMan = new PluginManager();
 
             _instance ??= this;
