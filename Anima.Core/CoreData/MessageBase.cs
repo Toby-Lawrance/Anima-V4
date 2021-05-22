@@ -1,6 +1,6 @@
 ﻿namespace Core.CoreData
 {
-    public abstract class MessageBase
+    public class MessageBase
     {
         public string Sender;
         public string SenderReturnBox = "default";

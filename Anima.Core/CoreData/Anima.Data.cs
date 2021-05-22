@@ -14,7 +14,7 @@ namespace Core
 {
     public partial class Anima {
         [JsonInclude]
-        private PluginManager plugMan;
+        public PluginManager PlugMan;
 
         [JsonInclude]
         public MailSystem SystemMail { get; }

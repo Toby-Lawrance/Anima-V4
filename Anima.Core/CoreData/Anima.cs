@@ -19,7 +19,7 @@ namespace Core
         {
             SetStreams(ostream, istream, estream);
             SystemMail = new MailSystem();
-            plugMan = new PluginManager();
+            PlugMan = new PluginManager();
 
             _instance ??= this;
         }
@@ -38,7 +38,7 @@ namespace Core
         public void Run()
         {
             OutStream.WriteLine("Initializing Anima");
-            plugMan.LoadAndRunPlugins();
+            PlugMan.LoadAndRunPlugins();
             OutStream.WriteLine("Plugin manager complete");
             string? input;
             do
@@ -46,7 +46,7 @@ namespace Core
                 input = InStream.ReadLine();
             } while (input != "quit");
 
-            plugMan.ClosePlugins();
+            PlugMan.ClosePlugins();
         }
 
         public object WriteLine(object s)
@@ -88,7 +88,7 @@ namespace Core
 
         public static string Serialize(object obj)
         {
-            return JsonConvert.SerializeObject(obj, Formatting.Indented) + EofToken;
+            return JsonConvert.SerializeObject(obj, Formatting.Indented, new JsonSerializerSettings() { Converters =  {new PlugManagerSerializationConverter() } }) + EofToken;
         }
 
         public static T? Deserialize<T>(string json)
@@ -100,7 +100,7 @@ namespace Core
                     json = json.Remove(json.Length - EofToken.Length);
                 }
 
-                return JsonConvert.DeserializeObject<T>(json);
+                return JsonConvert.DeserializeObject<T>(json, new JsonSerializerSettings() { Converters =  {new PlugManagerSerializationConverter() } });
             }
             catch (Exception e)
             {
