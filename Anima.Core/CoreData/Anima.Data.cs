@@ -13,11 +13,10 @@ using Newtonsoft.Json;
 namespace Core
 {
     public partial class Anima {
-
-        private MailSystem mailBoxes;
         [JsonInclude]
         private PluginManager plugMan;
 
-        public MailSystem MailBoxes => mailBoxes;
+        [JsonInclude]
+        public MailSystem MailBoxes { get; }
     }
 }

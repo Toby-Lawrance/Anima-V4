@@ -16,57 +16,54 @@ namespace Core.CoreData
     public class KnowledgeBase<TContainedType>
     {
         [JsonInclude]
-        private readonly ConcurrentDictionary<string, TContainedType> _pool;
-
-        [JsonInclude]
-        public ConcurrentDictionary<string, TContainedType> Pool => _pool;
+        public ConcurrentDictionary<string, TContainedType> Pool { get; }
 
         public KnowledgeBase()
         {
-            _pool = new ConcurrentDictionary<string, TContainedType>();
+            Pool = new ConcurrentDictionary<string, TContainedType>();
         }
 
         public bool Exists(string id)
         {
-            return _pool.ContainsKey(id);
+            return Pool.ContainsKey(id);
         }
 
         //Inserting will only insert for null or non-existent values. This is safer for new things
         public bool TryInsertValue(string id, TContainedType val)
         {
-            if (!_pool.ContainsKey(id) || !_pool[id].Equals(default(TContainedType)))
+            if (!Pool.ContainsKey(id) || !Pool[id]!.Equals(default(TContainedType)))
             {
-                return _pool.TryAdd(id, val);
+                return Pool.TryAdd(id, val);
             }
 
-            _pool[id] = val;
+            Pool[id] = val;
             return true;
 
         }
 
         public bool TrySetValue(string id, TContainedType val)
         {
-            if (!_pool.ContainsKey(id))
+            if (!Pool.ContainsKey(id))
             {
                 return TryInsertValue(id,val);
             }
 
-            var expectedVal = _pool[id];
-            var result = _pool.AddOrUpdate(id,(k) => val,(id,kvp1) => expectedVal.Equals(kvp1) ? val : kvp1);
-            return result.Equals(val);
+            var expectedVal = Pool[id];
+            var result = Pool.AddOrUpdate(id,(k) => val,(id,kvp1) => expectedVal != null && expectedVal.Equals(kvp1) ? val : kvp1);
+            return result != null && result.Equals(val);
         }
 
         //This just does it
         public void SetValue(string id, TContainedType val)
         {
-            _pool[id] = val;
+            Pool[id] = val;
         }
 
-        public bool TryGetValue(string id, out TContainedType value)
+        public bool TryGetValue(string id, out TContainedType? value)
         {
-            if (_pool.ContainsKey(id))
+            if (Pool.ContainsKey(id))
             {
-                value = _pool[id];
+                value = Pool[id];
                 return true;
             }
 

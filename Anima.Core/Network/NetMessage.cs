@@ -1,19 +1,15 @@
 ﻿using System;
 using System.Text.Json.Serialization;
+using Core.CoreData;
 
 namespace Core.Network
 {
-    public class NetMessage
+    public class NetMessage : MessageBase
     {
         [JsonInclude]
         public string SendHost = "";
         [JsonInclude]
         public string ReceiveHost = "";
-
-        [JsonInclude]
-        public string SendPlugin = "";
-        [JsonInclude]
-        public string ReceivePlugin = "";
 
         [JsonInclude]
         public bool GetRequest = false;
@@ -36,8 +32,8 @@ namespace Core.Network
         {
             SendHost = Environment.MachineName;
             ReceiveHost = receiveHost;
-            SendPlugin = sendPlugin;
-            ReceivePlugin = receivePlugin;
+            Sender = sendPlugin;
+            Receiver = receivePlugin;
             Value = value;
         }
     }

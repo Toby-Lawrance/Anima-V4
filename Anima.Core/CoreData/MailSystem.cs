@@ -21,7 +21,7 @@ namespace Core.CoreData
             MailBoxes = new ConcurrentDictionary<string, MailBox>();
         }
         
-        public bool PostMessage<T>(Message<T> value)
+        public bool PostMessage<T>(Message<T>? value)
         {
             if (value is null)
             {
@@ -49,7 +49,7 @@ namespace Core.CoreData
             return !MailBoxes.ContainsKey(id) ? 0 : MailBoxes[id].CheckTotalNumMessages();
         }
 
-        public Message<T> GetMessage<T>(Module mod, string box = "default")
+        public Message<T>? GetMessage<T>(Module mod, string box = "default")
         {
             var id = mod.Identifier;
             return !MailBoxes.ContainsKey(id) ? null : MailBoxes[id].GetMessage<T>(box);

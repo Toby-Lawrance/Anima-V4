@@ -11,7 +11,12 @@ namespace Core.CoreData
         [JsonInclude]
         public ConcurrentDictionary<string, ConcurrentQueue<MessageBase>> MailBoxes { get; }
 
-        public bool PostMessage(MessageBase value)
+        public MailBox()
+        {
+            MailBoxes = new ConcurrentDictionary<string, ConcurrentQueue<MessageBase>>();
+        }
+
+        public bool PostMessage(MessageBase? value)
         {
             if (value is null)
             {
@@ -43,7 +48,7 @@ namespace Core.CoreData
             return MailBoxes.Select(kvp => kvp.Value).Aggregate(0,(sum,queue) => sum += queue.Count);
         }
 
-        public Message<T> GetMessage<T>(string box = "default")
+        public Message<T>? GetMessage<T>(string box = "default")
         {
             if (!MailBoxes.ContainsKey(box))
             {
@@ -55,7 +60,7 @@ namespace Core.CoreData
                 return null;
             }
 
-            var result = MailBoxes[box].TryPeek(out MessageBase firstMessage);
+            var result = MailBoxes[box].TryPeek(out MessageBase? firstMessage);
             if (!result || firstMessage is not Message<T> m)
             {
                 return null;

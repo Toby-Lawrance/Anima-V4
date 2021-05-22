@@ -15,10 +15,10 @@ namespace Core
         public static Anima Instance => _instance ??= new Anima();
 
 
-        public Anima(TextWriter ostream, TextReader istream, TextWriter estream)
+        public Anima(TextWriter? ostream, TextReader? istream, TextWriter? estream)
         {
             SetStreams(ostream, istream, estream);
-            mailBoxes = new MailSystem();
+            MailBoxes = new MailSystem();
             plugMan = new PluginManager();
 
             _instance ??= this;
@@ -28,11 +28,11 @@ namespace Core
         {
         }
 
-        public void SetStreams(TextWriter ostream, TextReader istream, TextWriter estream)
+        public void SetStreams(TextWriter? ostream, TextReader? istream, TextWriter? estream)
         {
-            outStream = ostream ?? Console.Out;
-            inStream = istream ?? Console.In;
-            errorStream = estream ?? Console.Error;
+            OutStream = ostream ?? Console.Out;
+            InStream = istream ?? Console.In;
+            ErrorStream = estream ?? Console.Error;
         }
 
         public void Run()
@@ -40,7 +40,7 @@ namespace Core
             OutStream.WriteLine("Initializing Anima");
             plugMan.LoadAndRunPlugins();
             OutStream.WriteLine("Plugin manager complete");
-            string input;
+            string? input;
             do
             {
                 input = InStream.ReadLine();
@@ -91,7 +91,7 @@ namespace Core
             return JsonConvert.SerializeObject(obj, Formatting.Indented) + EofToken;
         }
 
-        public static T Deserialize<T>(string json)
+        public static T? Deserialize<T>(string json)
         {
             try
             {
@@ -109,12 +109,10 @@ namespace Core
             }
         }
 
-        [JsonIgnore] public TextWriter OutStream => outStream;
-        [JsonIgnore] public TextReader InStream => inStream;
-        [JsonIgnore] public TextWriter ErrorStream => errorStream;
+        [JsonIgnore] public TextWriter OutStream { get; private set; }
 
-        [JsonIgnore] private TextWriter outStream;
-        [JsonIgnore] private TextReader inStream;
-        [JsonIgnore] private TextWriter errorStream;
+        [JsonIgnore] public TextReader InStream { get; private set; }
+
+        [JsonIgnore] public TextWriter ErrorStream { get; private set; }
     }
 }

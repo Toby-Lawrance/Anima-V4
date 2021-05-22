@@ -14,21 +14,21 @@ namespace Core.Network
 
         public static NetMessage ReplyMessage(NetMessage nm, string value)
         {
-            return new NetMessage(nm.SendHost,nm.ReceivePlugin,nm.SendPlugin,value);
+            return new NetMessage(nm.SendHost,nm.Receiver,nm.Sender,value);
         }
 
         public static string ReadFromStreamUntilEnd(StreamReader sr)
         {
             try
             {
-                string ReadContents = "";
-                string line;
+                string readContents = "";
+                string? line;
                 while ((line = sr.ReadLine()) != "<EOF>")
                 {
-                    ReadContents += line + Anima.NewLineChar;
+                    readContents += line + Anima.NewLineChar;
                 }
 
-                return ReadContents;
+                return readContents;
             }
             catch (Exception e)
             {
@@ -47,12 +47,12 @@ namespace Core.Network
             }
             catch (Exception e)
             {
-                Anima.Instance.ErrorStream.WriteLine($"Unable to connect to:{a} because {e.Message}");
+                await Anima.Instance.ErrorStream.WriteLineAsync($"Unable to connect to:{a} because {e.Message}");
                 return (false, a);
             }
         }
 
-        public static TcpClient TryConnectClient(IPAddress a, int p)
+        public static TcpClient? TryConnectClient(IPAddress a, int p)
         {
             try
             {
@@ -72,7 +72,7 @@ namespace Core.Network
             if (tcp is null)
             {
                 Anima.Instance.ErrorStream.WriteLine($"Tcp Client is null");
-                return (false, null);
+                return (false, null)!;
             }
 
             var strem = new StreamWriter(tcp.GetStream());

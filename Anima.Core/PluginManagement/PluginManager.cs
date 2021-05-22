@@ -20,7 +20,7 @@ namespace Core.PluginManagement
             new FileInfo(Assembly.GetExecutingAssembly().Location).Directory?.FullName
         };
 
-        [JsonInclude] public KnowledgeBase<string[]> pluginInfo;
+        [JsonInclude] public KnowledgeBase<string[]> pluginInfo = new KnowledgeBase<string[]>();
 
         private List<Plugins.Module> loadedPlugins;
         private List<Timer> runningPlugins;
