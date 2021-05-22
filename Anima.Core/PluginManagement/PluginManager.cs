@@ -4,25 +4,30 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using Core.CoreData;
+using Microsoft.VisualBasic;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using JsonConverter = Newtonsoft.Json.JsonConverter;
 using Module = Core.Plugins.Module;
 
 namespace Core.PluginManagement
 {
     public class PluginManager
     {
-        [JsonInclude] private string[] directories =
+        [JsonInclude] public string[] directories =
         {
             new FileInfo(Assembly.GetExecutingAssembly().Location).Directory?.FullName
         };
 
         [JsonInclude] public KnowledgeBase<string[]> pluginInfo = new KnowledgeBase<string[]>();
 
-        private List<Plugins.Module> loadedPlugins;
+        [Newtonsoft.Json.JsonIgnore]
+        public List<Plugins.Module> loadedPlugins;
+        [Newtonsoft.Json.JsonIgnore]
         private List<Timer> runningPlugins;
 
 
@@ -157,6 +162,40 @@ namespace Core.PluginManagement
             pluginInfo.TrySetValue("Enabled-Plugins", enabled.ToArray());
             pluginInfo.TrySetValue("Disabled-Plugins",disabled.ToArray());
             return mods;
+        }
+    }
+
+    public class PlugManagerSerializationConverter : Newtonsoft.Json.JsonConverter<PluginManager>
+    {
+        public override void WriteJson(JsonWriter writer, PluginManager value, JsonSerializer serializer)
+        {
+            JObject o = JObject.FromObject(value);
+
+            Dictionary<string, string> pluginSerialisations = new Dictionary<string, string>();
+            foreach (var plugin in value.loadedPlugins)
+            {
+                pluginSerialisations[plugin.Identifier] = plugin.Serialize();
+            }
+
+            var obj = JObject.FromObject(pluginSerialisations, serializer);
+            o.Add("plugin-data", obj);
+            
+            o.WriteTo(writer);
+        }
+
+        public override PluginManager ReadJson(JsonReader reader, Type objectType, PluginManager existingValue, bool hasExistingValue,
+            JsonSerializer serializer)
+        {
+            if (hasExistingValue)
+            {
+                Anima.Instance.WriteLine("Filling out plugman");
+                return existingValue;
+            }
+            else
+            {
+                Anima.Instance.WriteLine("Making new plugman");
+                return new PluginManager();
+            }
         }
     }
 }
