@@ -186,6 +186,8 @@ namespace Core.PluginManagement
         public override PluginManager ReadJson(JsonReader reader, Type objectType, PluginManager existingValue, bool hasExistingValue,
             JsonSerializer serializer)
         {
+            Anima.Instance.WriteLine($"Reader: {reader.Value}");
+            
             if (hasExistingValue)
             {
                 Anima.Instance.WriteLine("Filling out plugman");
